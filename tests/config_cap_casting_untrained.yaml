@@ -1,0 +1,16 @@
+activities:
+  cap_casting:
+    weights: "runs/detect/pier_cap_casting/weights/best.pt"
+    rules: "src/rules/rules_cap_casting.yaml"
+    classes:
+      0: "Casted cap"
+      1: "Concrete pump"
+      2: "cap formwork"
+      3: "needle vibrator"
+      4: "pier stem"
+      5: "transit mixer"
+      6: "worker"
+    output_dir: "outputs/pier_cap_casting"
+    activity_label: "Pier Cap Casting"
+    idle_label: "Idle / No Cap Casting Activity"
+    model_trained: false

@@ -1,0 +1,24 @@
+# Large / regeneratable data
+datasets/
+runs/
+outputs/
+webapp/static/
+models/*.pt
+*.pt.bak
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+
+# OS/editor junk
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs
+*.log

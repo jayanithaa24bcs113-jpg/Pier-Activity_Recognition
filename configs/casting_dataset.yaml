@@ -1,0 +1,21 @@
+# ===========================================================
+# Pier Stem Casting — YOLO Dataset Configuration
+# Class order matches Roboflow export exactly (alphabetical)
+# ===========================================================
+
+path: C:/Users/Student/Desktop/Pier_Monitoring/datasets/Pier_stem_casting
+
+train: train/images
+val: valid/images
+test: test/images
+
+nc: 7
+
+names:
+  0: "Casted Pier"
+  1: "Concrete Pump"
+  2: "Formwork"
+  3: "Fresh Concrete"
+  4: "Needle Vibrator"
+  5: "Transit Mixer"
+  6: "Worker"

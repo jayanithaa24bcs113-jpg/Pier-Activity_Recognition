@@ -1,0 +1,108 @@
+# ===========================================================
+# Pier Stem Casting Rules (Stage 2)
+# Dataset Classes:
+#   Formwork, Concrete Pump, Transit Mixer, Vibrator,
+#   Fresh Concrete, Worker, Casted Pier
+# ===========================================================
+
+- name: "Formwork Installed"
+  condition:
+    type: "greater_than"
+    attribute: "formwork_count"
+    threshold: 0
+  score: 0.6
+
+- name: "Worker Near Formwork"
+  condition:
+    type: "equals"
+    attribute: "worker_near_formwork"
+    threshold: true
+  score: 0.4
+
+- name: "Transit Mixer Present"
+  condition:
+    type: "greater_than"
+    attribute: "transit_mixer_count"
+    threshold: 0
+  score: 0.4
+
+- name: "Concrete Pump Active"
+  condition:
+    type: "greater_than"
+    attribute: "concrete_pump_count"
+    threshold: 0
+  score: 0.4
+
+- name: "Vibrator Active"
+  condition:
+    type: "greater_than"
+    attribute: "vibrator_count"
+    threshold: 0
+  score: 0.4
+
+- name: "Fresh Concrete Visible"
+  condition:
+    type: "greater_than"
+    attribute: "fresh_concrete_count"
+    threshold: 0
+  score: 0.6
+
+- name: "Worker Near Concrete"
+  condition:
+    type: "equals"
+    attribute: "worker_near_concrete"
+    threshold: true
+  score: 0.4
+
+- name: "High Concrete Density"
+  condition:
+    type: "greater_than"
+    attribute: "concrete_density"
+    threshold: 0.3
+  score: 0.4
+
+- name: "Tall Vertical Shuttering"
+  condition:
+    type: "greater_than"
+    attribute: "tall_vertical_shuttering"
+    threshold: 0.5
+  score: 0.6
+
+- name: "Casted Pier Visible"
+  condition:
+    type: "greater_than"
+    attribute: "casted_pier_count"
+    threshold: 0
+  score: 0.4
+
+- name: "Concrete Placement Active"
+  condition:
+    type: "and"
+    conditions:
+      - type: "greater_than"
+        attribute: "concrete_pump_count"
+        threshold: 0
+      - type: "greater_than"
+        attribute: "fresh_concrete_count"
+        threshold: 0
+  score: 0.8
+
+- name: "Full Pier Stem Casting"
+  condition:
+    type: "and"
+    conditions:
+      - type: "greater_than"
+        attribute: "formwork_count"
+        threshold: 0
+      - type: "or"
+        conditions:
+          - type: "greater_than"
+            attribute: "concrete_pump_count"
+            threshold: 0
+          - type: "greater_than"
+            attribute: "transit_mixer_count"
+            threshold: 0
+      - type: "greater_than"
+        attribute: "worker_count"
+        threshold: 0
+  score: 1.0

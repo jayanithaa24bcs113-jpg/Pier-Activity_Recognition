@@ -1,0 +1,168 @@
+model:
+  weights: "runs/detect/models/pier_monitoring/weights/best.pt"
+  save_dir: "models"
+
+dataset:
+  root: "datasets/Pier_stem_reinforcement"
+  train_path: "datasets/Pier_stem_reinforcement/images/train"
+  valid_path: "datasets/Pier_stem_reinforcement/images/valid"
+  test_path: "datasets/Pier_stem_reinforcement/images/test"
+
+training:
+  epochs: 100
+  imgsz: 640
+  batch: 8
+  device: "0"
+  optimizer: "AdamW"
+  learning_rate: 0.001
+  patience: 20
+
+metrics:
+  output_file: "outputs/metrics.csv"
+
+rules:
+  file: "src/rules/rules.yaml"
+
+# ---------------------------------------------------------------
+# Class index → name  (must match the YOLO dataset label indices)
+# Activity: Pier Stem Reinforcement
+# ---------------------------------------------------------------
+classes:
+  0: "Crane"
+  1: "Pile cap"
+  2: "pier rebar"
+  3: "vertical rebars"
+  4: "worker"
+
+# ---------------------------------------------------------------
+# Activity recognition thresholds
+# ---------------------------------------------------------------
+activity:
+  name: "Pier Stem Reinforcement"
+  confidence_threshold: 0.5
+  temporal_window: 5        # frames to consider for temporal consistency
+
+# ---------------------------------------------------------------
+# Multi-activity configuration block
+# ---------------------------------------------------------------
+activities:
+  reinforcement:
+    weights: "runs/detect/models/pier_monitoring/weights/best.pt"
+    rules: "src/rules/rules.yaml"
+    classes:
+      0: "Crane"
+      1: "Pile cap"
+      2: "pier rebar"
+      3: "vertical rebars"
+      4: "worker"
+    output_dir: "outputs/reinforcement"
+    activity_label: "Pier Stem Reinforcement"
+    idle_label: "Idle / No Significant Activity"
+    confidence_threshold: 0.5
+    temporal_window: 5
+
+  casting:
+    weights: "runs/detect/models/pier_casting_v2/weights/best.pt"
+    rules: "src/rules/rules_stem_casting.yaml"
+    classes:
+      0: "Casted Pier"
+      1: "Concrete Pump"
+      2: "Formwork"
+      3: "Fresh Concrete"
+      4: "Needle Vibrator"
+      5: "Transit Mixer"
+      6: "Worker"
+    output_dir: "outputs/casting"
+    activity_label: "Pier Stem Casting"
+    idle_label: "Idle / No Casting Activity"
+    confidence_threshold: 0.5
+    temporal_window: 5
+
+  # -------------------------------------------------------------
+  # Stage 3 — Pier Cap Reinforcement
+  # Dataset pending: model_trained stays false until best.pt exists
+  # and you flip this flag manually after training completes.
+  # -------------------------------------------------------------
+  cap_reinforcement:
+    weights: "runs/detect/models/pier_cap_reinforcement/weights/best.pt"
+    rules: "src/rules/rules_cap_reinforcement.yaml"
+    model_base: "yolov8m.pt"
+    classes:
+      0: "Crane"
+      1: "Horizontal Rebar"
+      2: "Pier stem"
+      3: "Worker"
+      4: "rebar_cage"
+    output_dir: "outputs/pier_cap_reinforcement"
+    activity_label: "Pier Cap Reinforcement"
+    idle_label: "Idle / No Cap Activity"
+    confidence_threshold: 0.5
+    temporal_window: 5
+    model_trained: true      # set to true after training is complete
+
+  # -------------------------------------------------------------
+  # Stage 4 — Pier Cap Casting
+  # Dataset ready and placed at datasets\Pier_cap_casting\.
+  # model_trained stays false until best.pt exists — flip manually
+  # after running: python train.py --activity cap_casting
+  # -------------------------------------------------------------
+  cap_casting:
+    weights: "runs/detect/models/pier_cap_casting/weights/best.pt"
+    rules: "src/rules/rules_cap_casting.yaml"
+    model_base: "yolov8m.pt"
+    classes:
+      0: "Casted cap"
+      1: "Concrete pump"
+      2: "cap formwork"
+      3: "needle vibrator"
+      4: "pier stem"
+      5: "transit mixer"
+      6: "worker"
+    output_dir: "outputs/pier_cap_casting"
+    activity_label: "Pier Cap Casting"
+    idle_label: "Idle / No Cap Casting Activity"
+    confidence_threshold: 0.5
+    temporal_window: 5
+    model_trained: true      # set to true after training is complete
+
+# ---------------------------------------------------------------
+# Training config for Pier Stem Casting dataset
+# ---------------------------------------------------------------
+casting_training:
+  data: "configs/casting_dataset.yaml"
+  epochs: 150
+  imgsz: 640
+  batch: 8
+  model: "yolov8m.pt"
+  name: "pier_casting_v2"
+  project: "models"
+  patience: 30
+
+# ---------------------------------------------------------------
+# Training config for Pier Cap Reinforcement dataset (Stage 3)
+# Dataset status: PENDING — annotate and populate before training
+# Run: python train.py --activity cap_reinforcement
+# ---------------------------------------------------------------
+cap_reinforcement_training:
+  data: "configs/cap_reinforcement_dataset.yaml"
+  epochs: 100
+  imgsz: 640
+  batch: 16
+  model: "yolov8m.pt"
+  name: "pier_cap_reinforcement"
+  project: "runs/detect/models"
+
+# ---------------------------------------------------------------
+# Training config for Pier Cap Casting dataset (Stage 4)
+# Dataset status: READY — 633 images, 2236 annotations, 7 classes
+# Run: python train.py --activity cap_casting
+# ---------------------------------------------------------------
+cap_casting_training:
+  data: "configs/cap_casting_dataset.yaml"
+  epochs: 150
+  imgsz: 640
+  batch: 16
+  model: "yolov8m.pt"
+  name: "pier_cap_casting"
+  project: "runs/detect/models"
+  patience: 30

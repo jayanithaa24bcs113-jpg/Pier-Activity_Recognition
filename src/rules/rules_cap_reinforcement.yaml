@@ -1,0 +1,118 @@
+# ===========================================================
+# Stage 3 — Pier Cap Reinforcement Rules
+# Format identical to rules.yaml (Stage 1) and rules_stem_casting.yaml (Stage 2)
+# Composite Rule 9 fires when geometry + count evidence is strong
+# Activity threshold: total_score >= 7 - Pier Cap Reinforcement
+# ===========================================================
+
+- name: "Horizontal Rebar Present"
+  condition:
+    type: "greater_than"
+    attribute: "horizontal_rebar_count"
+    threshold: 0
+  score: 3
+  # Rationale: Primary indicator — flat rebar mat on pier stem top
+
+- name: "Pier Stem Top Visible"
+  condition:
+    type: "greater_than"
+    attribute: "pier_stem_top_count"
+    threshold: 0
+  score: 3
+  # Rationale: Confirms stage prerequisite — stem must be complete
+
+- name: "Rebar Cage Present"
+  condition:
+    type: "greater_than"
+    attribute: "rebar_cage_count"
+    threshold: 0
+  score: 2
+  # Rationale: Wide shallow cage typical of cap reinforcement
+
+- name: "Workers Present"
+  condition:
+    type: "greater_than"
+    attribute: "worker_count"
+    threshold: 0
+  score: 1
+  # Rationale: Active site work
+
+- name: "Crane Present"
+  condition:
+    type: "greater_than"
+    attribute: "crane_count"
+    threshold: 0
+  score: 1
+  # Rationale: Lifting rebars into position
+
+- name: "Dense Cap Reinforcement"
+  condition:
+    type: "greater_than"
+    attribute: "rebar_density"
+    threshold: 0.30
+  score: 2
+  # Rationale: High density = active reinforcement placement
+
+- name: "Wide Rebar Geometry Confirmed"
+  condition:
+    type: "greater_than"
+    attribute: "avg_rebar_aspect_ratio"
+    threshold: 4.0
+  score: 2
+  # Rationale: Geometry check — distinguishes cap rebars from stem rebars
+
+- name: "Worker Near Rebar"
+  condition:
+    type: "equals"
+    attribute: "worker_near_rebar"
+    threshold: true
+  score: 2
+  # Rationale: Active placement work
+
+- name: "Pier Cap Reinforcement"
+  condition:
+    type: "or"
+    conditions:
+
+      # Branch 1: (horizontal_rebar_count > 2 AND pier_stem_top_count > 0)
+      - type: "and"
+        conditions:
+          - type: "greater_than"
+            attribute: "horizontal_rebar_count"
+            threshold: 2
+          - type: "greater_than"
+            attribute: "pier_stem_top_count"
+            threshold: 0
+
+      # Branch 2: (rebar_cage_count > 0 AND rebar_density > 0.30)
+      - type: "and"
+        conditions:
+          - type: "greater_than"
+            attribute: "rebar_cage_count"
+            threshold: 0
+          - type: "greater_than"
+            attribute: "rebar_density"
+            threshold: 0.30
+
+      # Branch 3: (horizontal_rebar_count > 0 AND avg_rebar_aspect_ratio > 4.0)
+      - type: "and"
+        conditions:
+          - type: "greater_than"
+            attribute: "horizontal_rebar_count"
+            threshold: 0
+          - type: "greater_than"
+            attribute: "avg_rebar_aspect_ratio"
+            threshold: 4.0
+
+  score: 5
+  # Rationale: Strong composite signal of pier cap reinforcement activity
+- name: "Cap Overhangs Stem (Geometric Confirmation)"
+  condition:
+    type: "equals"
+    attribute: "cap_stem_relationship_confirmed"
+    threshold: true
+  score: 3
+  # Rationale: Strong structural disambiguator — a real pier cap is
+  # physically wider than, positioned above, and horizontally aligned
+  # with its stem. This rejects false positives where stem-stage rebar
+  # geometry alone might otherwise resemble cap-stage activity.

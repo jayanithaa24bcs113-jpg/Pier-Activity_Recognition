@@ -1,0 +1,14 @@
+activities:
+  cap_reinforcement:
+    weights: "runs/detect/pier_cap_reinforcement/weights/best.pt"
+    rules: "src/rules/rules_cap_reinforcement.yaml"
+    classes:
+      0: "horizontal_rebar"
+      1: "pier_stem_top"
+      2: "rebar_cage"
+      3: "worker"
+      4: "crane"
+    output_dir: "outputs/pier_cap_reinforcement"
+    activity_label: "Pier Cap Reinforcement"
+    idle_label: "Idle / No Cap Activity"
+    model_trained: true

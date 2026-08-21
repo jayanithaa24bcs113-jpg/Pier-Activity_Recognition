@@ -1,0 +1,24 @@
+# ===========================================================
+# Stage 4 — Pier Cap Casting Dataset Configuration
+# Dataset status: READY — 633 images, 2236 annotations, 7 classes
+# Class order matches the Roboflow export as provided (no reorder
+# needed — verified against config.yaml activities.cap_casting.classes)
+# Run train.py --activity cap_casting once ready to train
+# ===========================================================
+
+path: C:/Users/Student/Desktop/Pier_Monitoring/datasets/Pier_cap_casting
+
+train: train/images
+val: valid/images
+test: test/images
+
+nc: 7
+
+names:
+  0: "Casted cap"
+  1: "Concrete pump"
+  2: "cap formwork"
+  3: "needle vibrator"
+  4: "pier stem"
+  5: "transit mixer"
+  6: "worker"

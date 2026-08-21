@@ -1,0 +1,122 @@
+# ===========================================================
+# Stage 4 — Pier Cap Casting Rules
+# Format identical to rules.yaml (Stage 1), rules_stem_casting.yaml
+# (Stage 2), and rules_cap_reinforcement.yaml (Stage 3)
+# Modeled directly on the Stage 2 casting rule pattern, adapted for
+# the Pier Cap Casting class set (no "fresh concrete" class — casted
+# cap area is used as the concrete-presence density proxy instead)
+# ===========================================================
+
+- name: "Cap Formwork Installed"
+  condition:
+    type: "greater_than"
+    attribute: "cap_formwork_count"
+    threshold: 0
+  score: 0.6
+  # Rationale: Shuttering assembled around the cap before pouring
+
+- name: "Pier Stem Visible"
+  condition:
+    type: "greater_than"
+    attribute: "pier_stem_count"
+    threshold: 0
+  score: 0.6
+  # Rationale: Confirms stage prerequisite — stem the cap sits on must be visible
+
+- name: "Worker Near Formwork"
+  condition:
+    type: "equals"
+    attribute: "worker_near_formwork"
+    threshold: true
+  score: 0.4
+  # Rationale: Active work around the cap formwork
+
+- name: "Transit Mixer Present"
+  condition:
+    type: "greater_than"
+    attribute: "transit_mixer_count"
+    threshold: 0
+  score: 0.4
+  # Rationale: Concrete delivery in progress
+
+- name: "Concrete Pump Active"
+  condition:
+    type: "greater_than"
+    attribute: "concrete_pump_count"
+    threshold: 0
+  score: 0.4
+  # Rationale: Concrete being pumped into the cap formwork
+
+- name: "Vibrator Active"
+  condition:
+    type: "greater_than"
+    attribute: "vibrator_count"
+    threshold: 0
+  score: 0.4
+  # Rationale: Needle vibrator in use — active compaction of poured concrete
+
+- name: "Casted Cap Visible"
+  condition:
+    type: "greater_than"
+    attribute: "casted_cap_count"
+    threshold: 0
+  score: 0.6
+  # Rationale: Poured/curing concrete cap surface visible
+
+- name: "Worker Near Casted Cap"
+  condition:
+    type: "equals"
+    attribute: "worker_near_casted_cap"
+    threshold: true
+  score: 0.4
+  # Rationale: Active finishing/curing work near the cap
+
+- name: "High Concrete Density"
+  condition:
+    type: "greater_than"
+    attribute: "concrete_density"
+    threshold: 0.3
+  score: 0.4
+  # Rationale: Large casted_cap surface area = active/recent pour
+
+- name: "Concrete Placement Active"
+  condition:
+    type: "and"
+    conditions:
+      - type: "greater_than"
+        attribute: "concrete_pump_count"
+        threshold: 0
+      - type: "greater_than"
+        attribute: "transit_mixer_count"
+        threshold: 0
+  score: 0.8
+  # Rationale: Pump and mixer both present — concrete actively being placed
+
+- name: "Full Pier Cap Casting"
+  condition:
+    type: "and"
+    conditions:
+      - type: "greater_than"
+        attribute: "cap_formwork_count"
+        threshold: 0
+      - type: "or"
+        conditions:
+          - type: "greater_than"
+            attribute: "concrete_pump_count"
+            threshold: 0
+          - type: "greater_than"
+            attribute: "transit_mixer_count"
+            threshold: 0
+      - type: "greater_than"
+        attribute: "worker_count"
+        threshold: 0
+  score: 1.0
+  # Rationale: Strong composite signal — formwork + delivery equipment + worker
+- name: "Cap Overhangs Stem (Geometric Confirmation)"
+  condition:
+    type: "equals"
+    attribute: "cap_stem_relationship_confirmed"
+    threshold: true
+  score: 0.6
+  # Rationale: Same structural disambiguation as Stage 3, scaled to
+  # this stage's rule scoring range.

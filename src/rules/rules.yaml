@@ -1,0 +1,84 @@
+# ===========================================================
+# Pier Stem Reinforcement Rules
+# Dataset Classes:
+# Crane
+# Pile cap
+# Pier Rebar
+# Vertical Rebars
+# Worker
+# ===========================================================
+
+- name: "Pier Rebar Present"
+  condition:
+    type: "greater_than"
+    attribute: "pier_rebar_count"
+    threshold: 0
+  score: 0.90
+
+
+- name: "Vertical Rebars Present"
+  condition:
+    type: "greater_than"
+    attribute: "vertical_rebar_count"
+    threshold: 0
+  score: 0.90
+
+
+- name: "Workers Present"
+  condition:
+    type: "greater_than"
+    attribute: "worker_count"
+    threshold: 0
+  score: 0.60
+
+
+- name: "Crane Present"
+  condition:
+    type: "greater_than"
+    attribute: "crane_count"
+    threshold: 0
+  score: 0.50
+
+
+- name: "Pile Cap Present"
+  condition:
+    type: "greater_than"
+    attribute: "pile_cap_count"
+    threshold: 0
+  score: 0.50
+
+
+- name: "Dense Reinforcement"
+  condition:
+    type: "greater_than"
+    attribute: "rebar_density"
+    threshold: 0.30
+  score: 0.80
+
+
+- name: "Pier Stem Reinforcement"
+  condition:
+    type: "or"
+    conditions:
+
+      - type: "and"
+        conditions:
+          - type: "greater_than"
+            attribute: "pier_rebar_count"
+            threshold: 3
+
+          - type: "greater_than"
+            attribute: "vertical_rebar_count"
+            threshold: 0
+
+      - type: "and"
+        conditions:
+          - type: "greater_than"
+            attribute: "pier_rebar_count"
+            threshold: 5
+
+          - type: "greater_than"
+            attribute: "rebar_density"
+            threshold: 0.30
+
+  score: 1.00

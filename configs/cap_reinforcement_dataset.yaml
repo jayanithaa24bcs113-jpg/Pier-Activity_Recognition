@@ -1,0 +1,29 @@
+# ===========================================================
+# Stage 3 — Pier Cap Reinforcement Dataset Configuration
+# Dataset status: PENDING — annotate and populate before training
+# Classes defined based on pier cap construction domain knowledge
+# Run train.py --activity cap_reinforcement once dataset is ready
+# ===========================================================
+# Class order matches Roboflow export exactly (alphabetical) —
+# VERIFY this after export. Roboflow exports classes alphabetically,
+# which will NOT match the order below by default:
+#   crane(0), horizontal_rebar(1), pier_stem_top(2), rebar_cage(3), worker(4)
+# You must manually reorder this file's `names` block (and the
+# exported data.yaml) to match the required order shown below.
+# See docs\annotation_guide_stage3.md Section 5 for full details.
+# ===========================================================
+
+path: C:/Users/Student/Desktop/Pier_Monitoring/datasets/Pier_cap_reinforcement
+
+train: train/images
+val: valid/images
+test: test/images
+
+nc: 5
+
+names:
+  0: "Crane"
+  1: "Horizontal Rebar"
+  2: "Pier stem"
+  3: "Worker"
+  4: "rebar_cage"

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pier Monitoring System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            background: #f4f6f8;
+            color: #222;
+        }
+        h1, h2 {
+            color: #1a3c5e;
+        }
+        .upload-box {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+        .upload-box p.hint {
+            color: #5a6b7a;
+            margin: 0 0 14px 0;
+        }
+        input[type="file"] {
+            margin: 10px 0;
+        }
+        button {
+            background: #1a3c5e;
+            color: #fff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #14304a;
+        }
+        .error {
+            color: #c0392b;
+            font-weight: bold;
+        }
+        .result-section {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+        img, video {
+            max-width: 100%;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            text-align: left;
+            padding: 8px 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #f0f3f6;
+        }
+        .activity-badge {
+            display: inline-block;
+            background: #1a3c5e;
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .activity-badge.idle {
+            background: #8a96a3;
+        }
+        .match-yes {
+            color: #1e7e34;
+            font-weight: bold;
+        }
+        .match-no {
+            color: #999;
+        }
+        .alert {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 0.95em;
+        }
+        .alert-info {
+            background: #eaf2fb;
+            color: #1a3c5e;
+            border: 1px solid #b8d4ee;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Pier Monitoring System</h1>
+
+    <div class="upload-box">
+        <h2>Upload Image / Video</h2>
+
+        {% if not cap_reinforcement_available %}
+        <div class="alert alert-info" role="alert">
+          ℹ️ <strong>Pier Cap Reinforcement (Stage 3)</strong> model is not yet trained.
+          It will become available automatically after training completes.
+        </div>
+        {% endif %}
+
+        {% if not cap_casting_available %}
+        <div class="alert alert-info" role="alert">
+          ℹ️ <strong>Pier Cap Casting (Stage 4)</strong> model is not yet trained.
+          It will become available automatically after training completes.
+        </div>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data">
+            <input type="file" name="image" accept=".jpg,.jpeg,.png,.mp4,.avi,.mov,.mkv">
+            <br>
+            <button type="submit">Upload and Analyze</button>
+        </form>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+    </div>
+
+    {% if uploaded_image %}
+    <div class="result-section">
+        <h2>Uploaded Image</h2>
+        <img src="{{ url_for('static', filename=uploaded_image) }}" alt="Uploaded Image">
+    </div>
+    {% endif %}
+
+    {% if result_image %}
+    <div class="result-section">
+        <h2>Detection Result</h2>
+        <img src="{{ url_for('static', filename=result_image) }}" alt="Detection Result">
+    </div>
+    {% endif %}
+
+    {% if uploaded_video %}
+    <div class="result-section">
+        <h2>Uploaded Video</h2>
+        <video controls>
+            <source src="{{ url_for('static', filename=uploaded_video) }}" type="video/mp4">
+            Your browser does not support video.
+        </video>
+    </div>
+    {% endif %}
+
+    {% if result_video %}
+    <div class="result-section">
+        <h2>Processed Video</h2>
+        <video controls>
+            <source src="{{ url_for('static', filename=result_video) }}" type="video/mp4">
+            Your browser does not support video.
+        </video>
+    </div>
+    {% endif %}
+
+    {% if activity %}
+    <div class="result-section">
+        <h2>Activity Recognition</h2>
+        <span class="activity-badge {% if 'Idle' in activity %}idle{% endif %}">
+            {{ activity_display_label }}
+        </span>
+        <p><strong>Overall Confidence Score:</strong> {{ confidence }}</p>
+    </div>
+    {% endif %}
+
+    {% if all_activity_results %}
+    <div class="result-section">
+        <h2>Per-Stage Detection Breakdown</h2>
+        <table>
+            <tr><th>Stage</th><th>Predicted Label</th><th>Confidence</th><th>Matched</th></tr>
+            {% for stage_key, result in all_activity_results.items() %}
+            <tr>
+                <td>{{ stage_key }}</td>
+                {% if result.predicted_label is defined %}
+                    <td>{{ result.predicted_label }}</td>
+                    <td>{{ result.confidence }}</td>
+                {% else %}
+                    <td>{{ result.final_activity }}</td>
+                    <td>{{ result.average_confidence }}</td>
+                {% endif %}
+                <td>
+                    {% if result.is_match %}
+                        <span class="match-yes">Yes</span>
+                    {% else %}
+                        <span class="match-no">No</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% endif %}
+
+    {% if detections %}
+    <div class="result-section">
+        <h2>Detected Objects</h2>
+        <table>
+            <tr><th>Object</th><th>Confidence</th></tr>
+            {% for d in detections %}
+            <tr><td>{{ d.name }}</td><td>{{ d.confidence }}</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% endif %}
+
+    {% if attributes %}
+    <div class="result-section">
+        <h2>Extracted Attributes — {{ activity_display_label }}</h2>
+        <table>
+            <tr><th>Attribute</th><th>Value</th></tr>
+            {% for key, value in attributes.items() %}
+            <tr><td>{{ key }}</td><td>{{ value }}</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% endif %}
+
+    {% if raw_scores %}
+    <div class="result-section">
+        <h2>Rule Scores</h2>
+        <table>
+            <tr><th>Rule</th><th>Score</th></tr>
+            {% for key, value in raw_scores.items() %}
+            <tr><td>{{ key }}</td><td>{{ value }}</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% endif %}
+
+    {% if smoothed_scores %}
+    <div class="result-section">
+        <h2>Bayesian Filtered Scores</h2>
+        <table>
+            <tr><th>Rule</th><th>Score</th></tr>
+            {% for key, value in smoothed_scores.items() %}
+            <tr><td>{{ key }}</td><td>{{ value }}</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% endif %}
+
+    {% if video_stats %}
+    <div class="result-section">
+        <h2>Video Processing Statistics</h2>
+        <table>
+            <tr><th>Metric</th><th>Value</th></tr>
+            <tr><td>Frames Processed</td><td>{{ video_stats.frames_processed }}</td></tr>
+            <tr><td>{{ activity_display_label }} Frames</td><td>{{ video_stats.activity_frames }}</td></tr>
+            <tr><td>Idle Frames</td><td>{{ video_stats.idle_frames }}</td></tr>
+            <tr><td>Average Confidence</td><td>{{ video_stats.average_confidence }}</td></tr>
+            <tr><td>Average FPS</td><td>{{ video_stats.average_fps }}</td></tr>
+            <tr><td>Processing Time (seconds)</td><td>{{ video_stats.processing_time }}</td></tr>
+        </table>
+    </div>
+    {% endif %}
+
+</body>
+</html>
